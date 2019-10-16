@@ -23,7 +23,10 @@ const baseConfig = {
     ]
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    alias: {
+      svelte: path.resolve("node_modules", "svelte")
+    },
+    extensions: [".ts", ".js", ".svelte"]
   },
   plugins: [new Dotenv()]
 };
@@ -36,6 +39,16 @@ const appConfig = merge(baseConfig, {
   },
   module: {
     rules: [
+      {
+        test: /\.svelte$/,
+        use: {
+          loader: "svelte-loader",
+          options: {
+            emitCss: true,
+            hotReload: true
+          }
+        }
+      },
       {
         test: /\.scss$/,
         exclude: /node_modules/,
