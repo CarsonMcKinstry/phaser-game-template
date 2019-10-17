@@ -45,12 +45,12 @@ const appConfig = merge(baseConfig, {
           loader: "svelte-loader",
           options: {
             emitCss: true,
-            hotReload: true
+            hotReload: false
           }
         }
       },
       {
-        test: /\.scss$/,
+        test: /\.s?css$/,
         exclude: /node_modules/,
         use: [
           {

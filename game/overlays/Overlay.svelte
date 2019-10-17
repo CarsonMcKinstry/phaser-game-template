@@ -14,5 +14,5 @@
 </style>
 
 <div class="overlay">
-  <h2>Hello overlay</h2>
+  <h2>Hello {name}</h2>
 </div>

@@ -2,6 +2,7 @@ import "./styles/styles.scss";
 import { AUTO, Game, Types } from "phaser";
 
 import BootScene from "./scenes/BootScene";
+import { OverlayPlugin } from "./plugins/OverlayPlugin";
 
 export const gameConfig: Types.Core.GameConfig = {
   type: AUTO,
@@ -12,6 +13,20 @@ export const gameConfig: Types.Core.GameConfig = {
     arcade: {
       debug: process.env.GAME_ENV === "debug"
     }
+  },
+  parent: "game",
+  dom: {
+    createContainer: true
+  },
+  plugins: {
+    scene: [
+      {
+        key: "OverlayPlugin",
+        plugin: OverlayPlugin,
+        start: false,
+        mapping: "overlays"
+      }
+    ]
   },
   backgroundColor: "#000000",
   scene: [BootScene]
