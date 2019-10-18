@@ -3,6 +3,7 @@ import { AUTO, Game, Types } from "phaser";
 
 import BootScene from "./scenes/BootScene";
 import { OverlayPlugin } from "./plugins/OverlayPlugin";
+import { ControllerPlugin } from "./plugins/ControllerPlugin";
 
 export const gameConfig: Types.Core.GameConfig = {
   type: AUTO,
@@ -23,8 +24,14 @@ export const gameConfig: Types.Core.GameConfig = {
       {
         key: "OverlayPlugin",
         plugin: OverlayPlugin,
-        start: false,
+        start: true,
         mapping: "overlays"
+      },
+      {
+        key: "ControllerPlugin",
+        plugin: ControllerPlugin,
+        start: true,
+        mapping: "controller"
       }
     ]
   },
