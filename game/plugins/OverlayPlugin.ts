@@ -1,6 +1,39 @@
-import { Plugins } from "phaser";
+import { Plugins, Game } from "phaser";
 
 type Props = Record<string, any>;
+
+class Overlay {
+  private _component: any;
+
+  constructor(
+    private component: any,
+    private overlayKey: Symbol,
+    private overlayManager: OverlayPlugin,
+    private game: Game
+  ) {}
+
+  public open(props?: Props) {
+    this._component = new this.component(this.game.domContainer, {
+      props
+    });
+  }
+
+  public close() {
+    this._component.$destroy();
+  }
+
+  public destroy() {
+    this.overlayManager.remove(this.overlayKey);
+  }
+
+  public get context() {
+    return this._component.$$.ctx;
+  }
+
+  public set props(props: Props) {
+    this._component.$set(props);
+  }
+}
 
 /**
  * Overlay Plugin
@@ -25,13 +58,13 @@ type Props = Record<string, any>;
  *
  *      create() {
  *        // create an overlay by passing the svelte component into the `open` method
- *        this.overlay = this.overlays.open(Overlay, {});
+ *        this.overlay = this.overlays.create(Overlay);
+ *
+ *        this.overlay.open();
  *      }
  *
  *      destroy() {
- *        if (this.overlay) {
- *            this.overlays.destroy(this.overlay);
- *        }
+ *        this.overlay.close();
  *      }
  *    }
  *
@@ -43,36 +76,17 @@ export class OverlayPlugin extends Plugins.BasePlugin {
     super(pluginManager);
   }
 
-  public open(component: any, props?: Props) {
+  public create(component: any) {
     const key = Symbol();
-    const overlay = new component({
-      target: this.game.domContainer,
-      props
-    });
+
+    const overlay = new Overlay(component, key, this, this.game);
+
     this.overlays.set(key, overlay);
 
-    return key;
+    return overlay;
   }
 
-  public close(key: Symbol) {
-    const overlay = this.overlays.get(key);
-    if (overlay) {
-      overlay.$destroy();
-      this.overlays.delete(key);
-    }
-  }
-
-  public getContext(key: Symbol) {
-    const overlay = this.overlays.get(key);
-    if (overlay) {
-      return overlay.$$.ctx;
-    }
-  }
-
-  public setProps(key: Symbol, props: Props) {
-    const overlay = this.overlays.get(key);
-    if (overlay) {
-      return overlay.$set(props);
-    }
+  public remove(key: Symbol) {
+    this.overlays.delete(key);
   }
 }
