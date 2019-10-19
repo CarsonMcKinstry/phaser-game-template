@@ -19,6 +19,9 @@ export const gameConfig: Types.Core.GameConfig = {
   dom: {
     createContainer: true
   },
+  input: {
+    gamepad: true
+  },
   plugins: {
     scene: [
       {

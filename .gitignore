@@ -101,3 +101,6 @@ public
 .tern-port
 
 build
+
+*-darwin-*
+*-linux-*

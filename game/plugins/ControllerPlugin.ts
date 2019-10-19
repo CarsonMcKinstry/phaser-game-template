@@ -8,7 +8,7 @@
  */
 import { Plugins, Scene, Types, Input } from "phaser";
 import { BehaviorSubject } from "rxjs";
-import { throttleTime } from "rxjs/operators";
+import { throttleTime, tap } from "rxjs/operators";
 
 export interface ButtonPresses {
   input?: string;
@@ -40,6 +40,11 @@ export interface ControllerKeys {
   three: Input.Keyboard.Key; // r2
 }
 
+export interface ControlerInfo {
+  vendor?: string;
+  product?: string;
+}
+
 export const DPAD_LEFT = "DPAD_left";
 export const DPAD_UP = "DPAD_up";
 export const DPAD_DOWN = "DPAD_down";
@@ -57,8 +62,37 @@ export class ControllerPlugin extends Plugins.ScenePlugin {
   private _events: BehaviorSubject<ButtonPresses> = new BehaviorSubject({});
   private cursorKeys!: Types.Input.Keyboard.CursorKeys;
   private controllerKeys!: ControllerKeys;
-  private controllerMapping?: ControllerMapping;
   private pad?: Input.Gamepad.Gamepad;
+
+  private controllerMapping?: ControllerMapping;
+  private controllerMappings: Map<string, ControllerMapping> = new Map([
+    [
+      "Generic   USB  Joystick   (STANDARD GAMEPAD Vendor: 0079 Product: 0006)",
+      {
+        A: APAD_UP,
+        B: APAD_RIGHT,
+        X: APAD_DOWN,
+        Y: APAD_LEFT,
+        L1: L1,
+        L2: L2,
+        R1: R1,
+        R2: R2
+      }
+    ],
+    [
+      "Wireless Controller (STANDARD GAMEPAD Vendor: 054c Product: 05c4)",
+      {
+        A: APAD_DOWN,
+        B: APAD_RIGHT,
+        X: APAD_LEFT,
+        Y: APAD_UP,
+        L1: L1,
+        L2: L2,
+        R1: R1,
+        R2: R2
+      }
+    ]
+  ]);
 
   constructor(scene: Scene, pluginManager: Plugins.PluginManager) {
     super(scene, pluginManager);
@@ -99,9 +133,11 @@ export class ControllerPlugin extends Plugins.ScenePlugin {
 
     this.scene.input.gamepad.on("connected", () => {
       this.pad = this.scene.input.gamepad.pad1;
-    });
+      console.log(this.pad);
+      this.controllerMapping = this.getControllerMapping(this.pad.id);
 
-    this.scene.input.gamepad.on("down", this.simulateAPAD);
+      this.scene.input.gamepad.on("down", this.simulateAPAD);
+    });
   }
 
   private simulateDPAD() {
@@ -127,12 +163,6 @@ export class ControllerPlugin extends Plugins.ScenePlugin {
     }
   }
 
-  private mapToAction = (input: string) => {
-    return () => {
-      this._events.next({ input });
-    };
-  };
-
   private simulateAPAD = (e: any) => {
     if (this.controllerMapping) {
       if (e.A) {
@@ -153,6 +183,12 @@ export class ControllerPlugin extends Plugins.ScenePlugin {
         });
       }
     }
+  };
+
+  private mapToAction = (input: string) => {
+    return () => {
+      this._events.next({ input });
+    };
   };
 
   private getPadMovement() {
@@ -177,7 +213,20 @@ export class ControllerPlugin extends Plugins.ScenePlugin {
     }
   }
 
-  public get inputs() {
+  private getControllerMapping(id: string) {
+    const mapping = this.controllerMappings.get(id);
+
+    return mapping ? mapping : undefined;
+  }
+
+  public addControllerMapping(id: string, mapping: ControllerMapping) {
+    this.controllerMappings.set(id, mapping);
+  }
+
+  public getEvents(throttle?: 80) {
+    if (throttle) {
+      return this._events.pipe(throttleTime(throttle));
+    }
     return this._events;
   }
 }
