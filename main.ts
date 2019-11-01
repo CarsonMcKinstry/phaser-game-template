@@ -8,8 +8,8 @@ let win: BrowserWindow | null;
 // create our window
 const createWindow = () => {
   win = new BrowserWindow({
-    width: Number(process.env.GAME_WIDTH) || 800,
-    height: Number(process.env.GAME_HEIGHT) || 600,
+    width: 800,
+    height: 600,
     frame: false,
     webPreferences: {
       nodeIntegration: true

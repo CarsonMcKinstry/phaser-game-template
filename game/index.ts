@@ -7,8 +7,8 @@ import { ControllerPlugin } from "./plugins/ControllerPlugin";
 
 export const gameConfig: Types.Core.GameConfig = {
   type: AUTO,
-  width: Number(process.env.GAME_WIDTH) || 800,
-  height: Number(process.env.GAME_HEIGHT) || 600,
+  width: 800,
+  height: 600,
   physics: {
     default: "arcade",
     arcade: {
